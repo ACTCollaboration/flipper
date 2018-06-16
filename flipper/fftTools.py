@@ -22,8 +22,8 @@ import sys, os
 from .utils import *
 from . import flTrace
 import astropy.io.fits as pyfits
-#import pyfits
 
+# Why not flipper.__path__ ?
 __FLIPPER_DIR__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 class fft2D:
@@ -244,7 +244,8 @@ def fftFromLiteMap(liteMap,applySlepianTaper = False,nresForSlepian=3.0):
     ly =  2*np.pi  * fftfreq( ft.Ny, d = ft.pixScaleY )
     
     ix = np.mod(np.arange(ft.Nx*ft.Ny),ft.Nx)
-    iy = np.arange(ft.Nx*ft.Ny)/ft.Nx
+    # This was dividing ints, so change below needed to maintain same behaviour in python3
+    iy = np.array(np.arange(ft.Nx*ft.Ny)/ft.Nx, dtype = int)     
     
     modLMap = np.zeros([ft.Ny,ft.Nx])
     modLMap[iy,ix] = np.sqrt(lx[ix]**2 + ly[iy]**2)
