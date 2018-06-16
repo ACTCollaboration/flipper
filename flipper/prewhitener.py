@@ -1,9 +1,9 @@
-import liteMap
+from . import liteMap
 import numpy
 import scipy.special as sp
-import utils
+from . import utils
 import pylab
-import flTrace
+from . import flTrace
 
 def discDiffLspace(radius,ell):
     radiusRadian = radius*numpy.pi/(180.*60.)
