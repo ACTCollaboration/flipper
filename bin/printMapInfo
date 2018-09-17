@@ -3,7 +3,7 @@
 from flipper import *
 
 if len(sys.argv) == 1:
-    print "Usage: printMapInfo map.fits"
+    print("Usage: printMapInfo map.fits")
     sys.exit()
 
 m = liteMap.liteMapFromFits(sys.argv[1])

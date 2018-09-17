@@ -15,7 +15,7 @@ import numpy as np
 #
 
 def __terminate__():
-    print "terminate process"
+    print("terminate process")
     sys.exit()
 
 argparser = argparse.ArgumentParser(
@@ -51,21 +51,21 @@ output_file = os.path.join(output_dir, output_file)
 
 #basic validation
 if(lmin < 0.0):
-    print 'lmin has to be equal to or greater than 0'
+    print('lmin has to be equal to or greater than 0')
     __terminate__()
 elif(lmax <= lmin):
-    print 'lmax must be bigger than lmin'
+    print('lmax must be bigger than lmin')
     __terminate__()
 elif(delta_l <= 0.0):
-    print 'step size must be bigger than 0'
+    print('step size must be bigger than 0')
     __terminate__() 
 else:
     pass
 
 nbin = int(np.floor((lmax - lmin) / delta_l)) # number of bins
 
-print "Binning File %s, lmin %0.2f, lmax %0.2f, binsize %0.2f, # bins %d" \
-        %(output_file, lmin, lmax, delta_l, nbin)
+print("Binning File %s, lmin %0.2f, lmax %0.2f, binsize %0.2f, # bins %d" \
+        %(output_file, lmin, lmax, delta_l, nbin))
 
 with open(output_file, "wb") as handle:
     handle.write(str(nbin) + '\n') # write number of bin

@@ -5,7 +5,7 @@ d@file ffTools.py
 """
 
 import numpy as np
-import utils
+from . import utils
 try:
     import pylab
 except:
@@ -19,11 +19,11 @@ from scipy.interpolate import splrep, splev
 import scipy
 import pickle
 import sys, os
-from utils import *
-import flTrace
+from .utils import *
+from . import flTrace
 import astropy.io.fits as pyfits
-#import pyfits
 
+# Why not flipper.__path__ ?
 __FLIPPER_DIR__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 class fft2D:
@@ -244,7 +244,8 @@ def fftFromLiteMap(liteMap,applySlepianTaper = False,nresForSlepian=3.0):
     ly =  2*np.pi  * fftfreq( ft.Ny, d = ft.pixScaleY )
     
     ix = np.mod(np.arange(ft.Nx*ft.Ny),ft.Nx)
-    iy = np.arange(ft.Nx*ft.Ny)/ft.Nx
+    # This was dividing ints, so change below needed to maintain same behaviour in python3
+    iy = np.array(np.arange(ft.Nx*ft.Ny)/ft.Nx, dtype = int)     
     
     modLMap = np.zeros([ft.Ny,ft.Nx])
     modLMap[iy,ix] = np.sqrt(lx[ix]**2 + ly[iy]**2)
@@ -377,10 +378,10 @@ class power2D:
         """
         lxMap = self.modLMap.copy()*0.
         lyMap = self.modLMap.copy()*0.
-        for p in xrange(self.Ny):
+        for p in range(self.Ny):
             lxMap[p,:] = self.lx[:]
             
-        for q in xrange(self.Nx):
+        for q in range(self.Nx):
             lyMap[:,q] = self.ly[:]
         
         lxMap = np.ravel(lxMap)
@@ -410,7 +411,7 @@ class power2D:
         thet=[]
         wet = []
         
-        for i in xrange(len(thetas)):
+        for i in range(len(thetas)):
             
             thisWeight = 1.0
             #if thetas[i] <0.:
@@ -503,7 +504,7 @@ class power2D:
         """
         binLower,binUpper,binCenter = readBinningFile(binningFile)
         nBins = binLower.size
-        print "nBins",nBins
+        print("nBins",nBins)
         if forceContiguousBins:
             assert(nearestIntegerBinning == False)
             # redefine bin upper
@@ -515,7 +516,7 @@ class power2D:
         binMean = np.zeros(nBins)
         binSd =  np.zeros(nBins)
         binWeight = np.zeros(nBins)
-        for i in xrange(nBins):
+        for i in range(nBins):
             if noCutBelowL != None:
                 if binUpper[i]<noCutBelowL:
                     (binMean[i],binSd[i]) = self.meanPowerInAnnulus(binLower[i],binUpper[i],\
@@ -561,7 +562,7 @@ class power2D:
         if nPix>0:
             p = (np.sum(cls[idx]*wtheta[idx]) - (cls[idx].mean())*(wtheta[idx].sum()))/(np.mean(cls[idx]))
         else:
-            print 'nPix is zero: no observation in bin (%f,%f)'%(lLower,lUpper)
+            print('nPix is zero: no observation in bin (%f,%f)'%(lLower,lUpper))
             p = 0.
         return p, nPix
         
@@ -582,7 +583,7 @@ class power2D:
         binMean = np.zeros(nBins)
         binWeight = np.zeros(nBins)
         
-        for i in xrange(nBins):
+        for i in range(nBins):
             (binMean[i],binWeight[i]) = self._testIsotropyInAnnulus(binLower[i],binUpper[i],cutByMask=cutByMask)
             
         return binLower,binUpper,binCenter,binMean,binWeight
@@ -706,7 +707,7 @@ class power2D:
             binLower,binUpper,binCenter= readBinningFile(showBinsFromFile)
             theta = np.arange(0,2.*np.pi+0.05,0.05)
             
-            for i in xrange(len(binLower)):
+            for i in range(len(binLower)):
                 x,y = binUpper[i]*np.cos(theta),binUpper[i]*np.sin(theta)
                 pylab.plot(x,y,'k')
 
@@ -823,7 +824,7 @@ def binTheoryPower(l,cl,binningFile):
     lBin = np.zeros(nBins)
     clBin =  np.zeros(nBins)
                
-    for i in xrange(len(binCenter)):
+    for i in range(len(binCenter)):
         idx = np.where((l<binUpper[i]) & (l>binLower[i]))
         lBin[i] = (l[idx]).mean()
         clBin[i] = (cl[idx]).mean()
@@ -864,7 +865,7 @@ def plotBinnedPower(lbin,plbin,\
     else:
         lth=[]
         clth=[]
-    print " In fftTools: %f ******* "%yFactor
+    print(" In fftTools: %f ******* "%yFactor)
     #beamLFactor = exp(-lth*(lth+1.)*(beamFWHM/60.*np.pi/180.)**2/(8.*np.log(2.))) 
     
     
@@ -891,7 +892,7 @@ def plotBinnedPower(lbin,plbin,\
             pass
         if ylog:
             if len(negIndex[0])>0:
-                print "negIndex **********", negIndex
+                print("negIndex **********", negIndex)
                 pylab.errorbar(lbin[negIndex],-l2pl2pi[negIndex],\
                                yerr=yFactor*lbin[negIndex]**2\
                                /(2*np.pi)*errorBars[negIndex],fmt=None)
@@ -1028,7 +1029,7 @@ def readBinningFile(binningFile):
         binningFile = os.path.join(__FLIPPER_DIR__, 'params', binningFile)  
 
         if not (os.path.exists(binningFile)):
-            raise IOError, 'Binning file %s not found'%binningFile
+            raise IOError('Binning file %s not found'%binningFile)
         
     binLower,binUpper,binCenter= np.loadtxt(binningFile,skiprows=1,unpack=True)
     return binLower,binUpper,binCenter

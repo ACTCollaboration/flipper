@@ -11,7 +11,7 @@ def getLevel( traceName ):
     @param traceName string - the name of the trace
     @return integer - trace verbosity level
     """
-    if traceName in traceDict.keys():
+    if traceName in list(traceDict.keys()):
         level = traceDict[traceName]
     else:
         level = traceDict[default]
@@ -39,4 +39,4 @@ def issue( traceName, level, message ):
     curLevel = getLevel(traceName)
     if level <= curLevel:
         space = " "*level
-        print "%s%s: %s" % (space, traceName, message)
+        print("%s%s: %s" % (space, traceName, message))
