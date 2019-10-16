@@ -85,7 +85,7 @@ class liteMap:
             print("Map header \n %s"%(self.header))
 
 
-    def fillWithGaussianRandomField(self,ell,Cell,bufferFactor = 1):
+    def fillWithGaussianRandomField(self,ell,Cell,bufferFactor = 1,forcePositive=False):
         """
         Generates a GRF from an input power spectrum specified as ell, Cell 
         BufferFactor =1 means the map will be periodic boundary function
@@ -93,6 +93,9 @@ class liteMap:
         larger in each dimension and then cut out so as to have non-periodic bcs.
         
         Fills the data field of the map with the GRF realization
+
+        Sometimes there are interpolation errors in which the 2d power spectrum goes negative.  
+        If forcePositive == True, these will just be set to zero.  forcePositive is False by default.
         """
         
         ft = fftFromLiteMap(self)
@@ -128,8 +131,11 @@ class liteMap:
 
         area = Nx*Ny*self.pixScaleX*self.pixScaleY
         p = np.reshape(kk,[Ny,Nx]) /area * (Nx*Ny)**2
-        assert np.all(p>=0)
-        
+        if not forcePositive:
+            assert np.all(p>=0)
+        else:
+            p[p < 0.] = 0.
+
         realPart = np.sqrt(p)*np.random.randn(Ny,Nx)
         imgPart = np.sqrt(p)*np.random.randn(Ny,Nx)
         
